@@ -28,6 +28,22 @@ def file_type(filename)
   end
 end
 
+def load_file_content(filepath)
+
+  file = File.read(filepath)
+
+  case file_type(filepath)
+  when :markdown
+    body render_markdown(file)
+  when :plaintext
+    status 200
+    headers "Content-Type" => "text/plain"
+    body file
+  else
+    body file
+  end
+end
+
 def render_markdown(file)
   markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
   markdown.render(file)
@@ -48,16 +64,5 @@ get "/:filename" do
     redirect "/"
   end
 
-  file = File.read(root + data_dir + "/" + filename)
-
-  case file_type(filename)
-  when :markdown
-    body render_markdown(file)
-  when :plaintext
-    status 200
-    headers "Content-Type" => "text/plain"
-    body file
-  else
-    body file
-  end
+  load_file_content(filepath)
 end
