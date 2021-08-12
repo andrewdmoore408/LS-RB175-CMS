@@ -54,4 +54,14 @@ class CMSTest < Minitest::Test
     get "/"
     refute_includes last_response.body, "#{nonexistent} does not exist."
   end
+
+  def test_markdown_to_html
+
+    get "/marky_markdown.md"
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "<em>"
+    assert_includes last_response.body, "<li>"
+    refute_includes last_response.body, "_"
+  end
 end
