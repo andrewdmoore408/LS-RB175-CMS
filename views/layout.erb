@@ -7,8 +7,21 @@
 </head>
 
 <body>
+  <header class="flash-message">
+    <% if session[:success] %>
+      <div class="flash success">
+        <p><%= session.delete(:success) %></p>
+      </div>
+    <% elsif session[:error] %>
+      <div class="flash error">
+        <p><%= session.delete(:error) %></p>
+      </div>
+    <% end %>
+  </header>
+
   <main>
     <%= yield %>
   </main>
+
 </body>
 </html>

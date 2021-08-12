@@ -5,6 +5,11 @@ require 'tilt/erubis'
 root = File.expand_path("..", __FILE__)
 data_dir = "/public/data"
 
+configure do
+  enable :sessions
+  set :session_secret, 'secret'
+end
+
 helpers do
   def only_filename(file)
     File.basename(file)
@@ -17,8 +22,17 @@ get "/" do
   erb :files
 end
 
-get "/view/:filename" do
-  file = File.read(root + data_dir + "/" + params[:filename])
+get "/:filename" do
+  filename = params[:filename]
+  filepath = root + data_dir + "/" + filename
+  file = nil
+
+  if File.file?(filepath)
+    file = File.read(root + data_dir + "/" + filename)
+  else
+    session[:error] = "#{filename} does not exist."
+    redirect "/"
+  end
 
   status 200
   headers "Content-Type" => "text/plain"

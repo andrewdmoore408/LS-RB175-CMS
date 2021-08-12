@@ -31,13 +31,27 @@ class CMSTest < Minitest::Test
 
   def test_view_filename
     @filenames.each do |filename|
-      get "/view/#{filename}"
+      get "/#{filename}"
 
       included = filename.gsub(".txt", "")
 
       assert_equal 200, last_response.status
       assert_equal "text/plain", last_response["Content-Type"]
-      assert last_response.body.include?(included)
+      assert_includes last_response.body, included
     end
+  end
+
+  def test_invalid_file_access
+    nonexistent = "notreal.txt"
+
+    get "/#{nonexistent}"
+    assert_equal 302, last_response.status
+
+    get last_response["location"]
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "#{nonexistent} does not exist."
+
+    get "/"
+    refute_includes last_response.body, "#{nonexistent} does not exist."
   end
 end
