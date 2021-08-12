@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'sinatra/reloader'
 require 'tilt/erubis'
+require "redcarpet"
 
 root = File.expand_path("..", __FILE__)
 data_dir = "/public/data"
