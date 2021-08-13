@@ -33,11 +33,8 @@ class CMSTest < Minitest::Test
     @filenames.each do |filename|
       get "/#{filename}"
 
-      included = filename.gsub(".txt", "")
-
       assert_equal 200, last_response.status
       assert_equal "text/plain", last_response["Content-Type"]
-      assert_includes last_response.body, included
     end
   end
 
@@ -63,5 +60,28 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "<em>"
     assert_includes last_response.body, "<li>"
     refute_includes last_response.body, "_"
+  end
+
+# test/cms_test.rb
+  def test_editing_document
+    get "/changes.txt/edit"
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "<textarea"
+    assert_includes last_response.body, %q(<input type="submit")
+  end
+
+  def test_updating_document
+    post "/changes.txt", file_content: "new content"
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+
+    assert_includes last_response.body, "changes.txt has been updated"
+
+    get "/changes.txt"
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "new content"
   end
 end

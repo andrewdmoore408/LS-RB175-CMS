@@ -3,8 +3,8 @@ require 'sinatra/reloader'
 require 'tilt/erubis'
 require 'redcarpet'
 
-root = File.expand_path("..", __FILE__)
-data_dir = "/public/data"
+ROOT = File.expand_path("..", __FILE__)
+DATA_DIR = "/public/data"
 
 configure do
   enable :sessions
@@ -15,6 +15,14 @@ helpers do
   def only_filename(file)
     File.basename(file)
   end
+
+  def load_file(filepath)
+    File.read(filepath)
+  end
+end
+
+def file_path(filename)
+  ROOT + DATA_DIR + "/" + filename
 end
 
 def file_type(filename)
@@ -49,20 +57,41 @@ def render_markdown(file)
   markdown.render(file)
 end
 
+def validate_file(filepath)
+  unless File.file?(filepath)
+    session[:error] = "#{filepath.split("/").last} does not exist."
+    redirect "/"
+  end
+end
+
 get "/" do
-  @files = Dir.glob(root + data_dir + "/*")
+  @files = Dir.glob(ROOT + DATA_DIR + "/*")
 
   erb :files
 end
 
 get "/:filename" do
   filename = params[:filename]
-  filepath = root + data_dir + "/" + filename
+  filepath = ROOT + DATA_DIR + "/" + filename
 
-  unless File.file?(filepath)
-    session[:error] = "#{filename} does not exist."
-    redirect "/"
-  end
+  validate_file(filepath)
 
   load_file_content(filepath)
+end
+
+get "/:filename/edit" do
+  @filepath = ROOT + DATA_DIR + "/" + params[:filename]
+
+  validate_file(@filepath)
+
+  erb :edit_file
+end
+
+post "/:filename" do
+  params[:file_content]
+
+  File.write(file_path(params[:filename]), params[:file_content])
+
+  session[:success] = "#{params[:filename]} has been updated."
+  redirect "/"
 end

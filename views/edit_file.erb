@@ -1,0 +1,9 @@
+<div id="file_container">
+  <label for="file_edit">Edit contents of <%= params[:filename] %>:</label>
+  <form action="/<%= params[:filename] %>" method="post">
+    <textarea id="file_edit" name="file_content" class="file_content" rows="30" cols="100" autofocus>
+      <%= load_file(@filepath) %>
+    </textarea>
+    <input type="submit" value="Save changes">
+  </form>
+</div>
