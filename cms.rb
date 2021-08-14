@@ -45,17 +45,11 @@ def file_type(filename)
 end
 
 def load_file_content(filename)
-  file = nil
-
-  # begin
-    file = File.read(file_path(filename))
-  # rescue => e
-  #    "#{e.message}"
-  # end
+  file = File.read(file_path(filename))
 
   case file_type(filename)
   when :markdown
-    body render_markdown(file)
+    erb render_markdown(file)
   when :plaintext
     status 200
     headers "Content-Type" => "text/plain"

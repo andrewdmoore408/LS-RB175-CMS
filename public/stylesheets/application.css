@@ -1,8 +1,14 @@
 body {
+  padding: 1em;
   font-size: medium;
-  font-family: Georgia, 'Times New Roman', Times, serif
+  font-family: sans-serif
 }
 
 .file_content {
   font-family: Arial, sans-serif
+}
+
+.flash-message {
+  padding: 10px;
+  background-color: #FFFF99;
 }

@@ -9,7 +9,7 @@
 </head>
 
 <body>
-  <header class="flash-message">
+  <header class="flash-message" <%= "hidden" unless session[:success] || session[:error] %>>
     <% if session[:success] %>
       <div class="flash success">
         <p><%= session.delete(:success) %></p>
