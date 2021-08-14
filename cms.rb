@@ -21,8 +21,16 @@ helpers do
   end
 end
 
+def data_path
+  if ENV["RACK_ENV"] == "test"
+    ROOT + File.expand_path("/test/data", __FILE__)
+  else
+    ROOT + File.expand_path("/public/data", __FILE__)
+  end
+end
+
 def file_path(filename)
-  ROOT + DATA_DIR + "/" + filename
+  File.join(data_path(), filename)
 end
 
 def file_type(filename)
@@ -36,11 +44,16 @@ def file_type(filename)
   end
 end
 
-def load_file_content(filepath)
+def load_file_content(filename)
+  file = nil
 
-  file = File.read(filepath)
+  # begin
+    file = File.read(file_path(filename))
+  # rescue => e
+  #    "#{e.message}"
+  # end
 
-  case file_type(filepath)
+  case file_type(filename)
   when :markdown
     body render_markdown(file)
   when :plaintext
@@ -57,33 +70,37 @@ def render_markdown(file)
   markdown.render(file)
 end
 
-def validate_file(filepath)
-  unless File.file?(filepath)
-    session[:error] = "#{filepath.split("/").last} does not exist."
+# Ensure that a file exists; if not, set a flash error message and redirect back to index
+def validate_file(filename)
+  unless File.file?(file_path(filename))
+    session[:error] = "#{filename.split("/").last} does not exist."
     redirect "/"
   end
 end
 
 get "/" do
-  @files = Dir.glob(ROOT + DATA_DIR + "/*")
+  pattern = File.join(data_path, "*")
+
+  @files = Dir.glob(pattern).map do |path|
+    File.basename(path)
+  end
 
   erb :files
 end
 
 get "/:filename" do
   filename = params[:filename]
-  filepath = ROOT + DATA_DIR + "/" + filename
 
-  validate_file(filepath)
+  validate_file(filename)
 
-  load_file_content(filepath)
+  load_file_content(filename)
 end
 
 get "/:filename/edit" do
-  @filepath = ROOT + DATA_DIR + "/" + params[:filename]
+  validate_file(params[:filename])
 
-  validate_file(@filepath)
-
+  @filepath = file_path(params[:filename])
+  puts "/:filename/edit FILEPATH IS #{@filepath}"
   erb :edit_file
 end
 
