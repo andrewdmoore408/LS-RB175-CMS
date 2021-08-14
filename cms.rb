@@ -72,6 +72,15 @@ def validate_file(filename)
   end
 end
 
+# Ensure a user-given filename is valid; if not, set a flash error message and redirect back to filename input
+def validate_filename(name)
+  unless name.length.positive?
+    session[:error] = "A name is required."
+    redirect "/new"
+  end
+end
+
+# Home page
 get "/" do
   pattern = File.join(data_path, "*")
 
@@ -82,6 +91,24 @@ get "/" do
   erb :index
 end
 
+# Add a new file
+post "/" do
+  new_name = params[:new_filename]
+
+  validate_filename(new_name)
+
+  file = File.open(file_path(new_name), "w+")
+
+  session[:success] = "#{new_name} was created"
+  redirect "/"
+end
+
+# Show form to add a new file
+get "/new" do
+  erb :new_document
+end
+
+# Load a file and display it
 get "/:filename" do
   filename = params[:filename]
 
@@ -90,6 +117,7 @@ get "/:filename" do
   load_file_content(filename)
 end
 
+# Load a textarea to edit a file
 get "/:filename/edit" do
   validate_file(params[:filename])
 
@@ -98,6 +126,7 @@ get "/:filename/edit" do
   erb :edit_file
 end
 
+# Submit edits to file
 post "/:filename" do
   params[:file_content]
 
