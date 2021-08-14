@@ -4,3 +4,7 @@
 *tempCodeRunnerFile.rb
 */.DS_Store
 */*/.DS_Store
+public/data/
+public/data/*
+public/data/*.*
+*/data/*.*
