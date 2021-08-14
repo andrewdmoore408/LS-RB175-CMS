@@ -72,12 +72,9 @@ def validate_file(filename)
   end
 end
 
-# Ensure a user-given filename is valid; if not, set a flash error message and redirect back to filename input
-def validate_filename(name)
-  unless name.length.positive?
-    session[:error] = "A name is required."
-    redirect "/new"
-  end
+# Return true if a filename is valid, else false
+def valid_filename?(name)
+  name.length.positive?
 end
 
 # Home page
@@ -91,21 +88,24 @@ get "/" do
   erb :index
 end
 
-# Add a new file
-post "/" do
-  new_name = params[:new_filename]
-
-  validate_filename(new_name)
-
-  file = File.open(file_path(new_name), "w+")
-
-  session[:success] = "#{new_name} was created"
-  redirect "/"
-end
-
 # Show form to add a new file
 get "/new" do
   erb :new_document
+end
+
+# Add a new file
+post "/new" do
+  new_filename = params[:new_filename]
+
+  if valid_filename?(new_filename)
+    file = File.open(file_path(new_filename), "w+")
+    session[:success] = "#{new_filename} has been created"
+    redirect "/"
+  else
+    session[:error] = "A name is required."
+    status 422
+    erb :new_document
+  end
 end
 
 # Load a file and display it
@@ -122,7 +122,6 @@ get "/:filename/edit" do
   validate_file(params[:filename])
 
   @filepath = file_path(params[:filename])
-  puts "/:filename/edit FILEPATH IS #{@filepath}"
   erb :edit_file
 end
 
