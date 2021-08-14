@@ -1,0 +1,10 @@
+<ul class="files">
+  <% @files.each do |file| %>
+    <li>
+      <a href="/<%= only_filename(file) %>"><%= only_filename(file) %></a>
+      <button type="button"><a href="/<%= only_filename(file) %>/edit">Edit</a></button>
+    </li>
+  <% end %>
+</ul>
+
+<a href="/new_document">New document</a>

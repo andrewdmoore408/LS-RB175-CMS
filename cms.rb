@@ -79,7 +79,7 @@ get "/" do
     File.basename(path)
   end
 
-  erb :files
+  erb :index
 end
 
 get "/:filename" do
