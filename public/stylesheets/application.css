@@ -12,3 +12,16 @@ body {
   padding: 10px;
   background-color: #FFFF99;
 }
+
+li form {
+  display: inline;
+}
+
+li {
+  margin: 0.2em;
+}
+
+button {
+  padding: 3px;
+  margin: 5px;
+}
