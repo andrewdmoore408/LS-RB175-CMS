@@ -175,6 +175,7 @@ post "/users/signin" do
   else
     @entered_username = params[:username]
     session[:error] = "Invalid credentials"
+    status 422
     erb :signin
   end
 end

@@ -30,11 +30,15 @@ class CMSTest < Minitest::Test
     end
   end
 
-  def test_index
+  def session
+    last_request.env["rack.session"]
+  end
+
+  def test_index_signed_in
     create_document "about.md"
     create_document "changes.txt"
 
-    get "/"
+    get "/", {}, { "rack.session" => { user: "admin" } }
 
     assert_equal 200, last_response.status
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
@@ -110,7 +114,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_create_new_document
-    post "/new", new_filename: "test.txt"
+    post "/new", {new_filename: "test.txt"}, { "rack.session" => { user: "admin"} }
     assert_equal 302, last_response.status
 
     get last_response["Location"]
@@ -138,5 +142,29 @@ class CMSTest < Minitest::Test
 
     get "/"
     refute_includes last_response.body, "toDelete.txt"
+  end
+
+  def test_signed_out_index
+    get "/"
+
+    assert_includes last_response.body, "You must sign in to use this site"
+  end
+
+  def test_signing_in
+    create_document "testing.txt"
+
+    get "/users/signin"
+
+    assert_includes last_response.body, "Username:"
+    assert_includes last_response.body, "Password:"
+
+    post "/users/signin", { username: "admin", password: "secret" }
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert last_response.ok?
+    assert_includes last_response.body, "testing.txt"
+    assert_includes last_response.body, "Signed in"
   end
 end
