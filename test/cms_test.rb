@@ -148,9 +148,10 @@ class CMSTest < Minitest::Test
     get "/"
 
     assert_includes last_response.body, "You must sign in to use this site"
+    assert_includes last_response.body, "Sign In</a></button>"
   end
 
-  def test_signing_in
+  def test_signing_in_valid
     create_document "testing.txt"
 
     get "/users/signin"
@@ -166,5 +167,28 @@ class CMSTest < Minitest::Test
     assert last_response.ok?
     assert_includes last_response.body, "testing.txt"
     assert_includes last_response.body, "Signed in"
+    assert_includes last_response.body.gsub!("\n", ""), "Sign out</button></form>"
+  end
+
+  def test_signin_invalid
+    post "/users/signin", { username: "guest", password: "shhhh" }
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "Invalid credentials"
+  end
+
+  def test_signing_out
+    get "/", {}, { "rack.session" => { user: "admin"} }
+
+    assert last_response.ok?
+    assert_includes last_response.body, "Signed in as admin"
+
+    post "/users/signout"
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+
+    assert last_response.ok?
+    assert_includes last_response.body, "You must sign in to use this site"
   end
 end
