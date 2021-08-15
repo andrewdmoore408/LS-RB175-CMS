@@ -82,16 +82,12 @@ class CMSTest < Minitest::Test
     create_document "changes.txt"
     get "/changes.txt/edit"
 
-    puts last_response.body
-
     assert_equal 200, last_response.status
     assert_includes last_response.body, "<textarea"
     assert_includes last_response.body, %q(<input type="submit")
   end
 
   def test_updating_document
-    # create_document "changes.txt"
-
     post "/changes.txt", file_content: "new content"
 
     assert_equal 302, last_response.status
@@ -128,5 +124,19 @@ class CMSTest < Minitest::Test
     post "/new", new_filename: ""
     assert_equal 422, last_response.status
     assert_includes last_response.body, "A name is required"
+  end
+
+  def test_delete_document
+    create_document "toDelete.txt"
+
+    post "/toDelete.txt/delete", filename: "toDelete.txt"
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "toDelete.txt was deleted."
+
+    get "/"
+    refute_includes last_response.body, "toDelete.txt"
   end
 end
