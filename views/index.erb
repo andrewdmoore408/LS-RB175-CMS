@@ -2,7 +2,9 @@
   <% @files.each do |file| %>
     <li>
       <a href="/<%= only_filename(file) %>"><%= only_filename(file) %></a>
+
       <button type="button"><a href="/<%= only_filename(file) %>/edit">Edit</a></button>
+
       <form action="/<%= only_filename(file) %>/delete" method="post">
         <button>Delete</button>
       </form>
