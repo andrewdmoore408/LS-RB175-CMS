@@ -134,3 +134,11 @@ post "/:filename" do
   session[:success] = "#{params[:filename]} has been updated."
   redirect "/"
 end
+
+# Delete a file
+post "/:filename/delete" do
+  File.delete(file_path(params[:filename]))
+  session[:success] = "#{params[:filename]} was deleted."
+
+  redirect "/"
+end
