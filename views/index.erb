@@ -5,7 +5,7 @@
 
       <button type="button"><a href="/<%= only_filename(file) %>/edit">Edit</a></button>
 
-      <form action="/<%= only_filename(file) %>/delete" method="post">
+      <form action="/<%= only_filename(file) %>/delete" method="post" class="inline">
         <button>Delete</button>
       </form>
     </li>
@@ -13,3 +13,10 @@
 </ul>
 
 <a href="/new">New document</a>
+
+<br>
+<p class="sign-in-notice">Signed in as <%= session[:user] %></p>
+
+<form action="/users/signout" method="post" class="inline">
+  <button>Sign out</button>
+</form>

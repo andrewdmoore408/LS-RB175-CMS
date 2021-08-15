@@ -87,13 +87,17 @@ end
 
 # Home page
 get "/" do
-  pattern = File.join(data_path, "*")
+  if session[:user]
+    pattern = File.join(data_path, "*")
 
-  @files = Dir.glob(pattern).map do |path|
-    File.basename(path)
+    @files = Dir.glob(pattern).map do |path|
+      File.basename(path)
+    end
+
+    erb :index
+  else
+    erb :not_logged_in
   end
-
-  erb :index
 end
 
 # Show form to add a new file
@@ -156,7 +160,7 @@ get "/users/signin" do
   erb :signin
 end
 
-# Validate sign-in
+# Validate sign-in attempt: log in if valid, else reload login form
 post "/users/signin" do
   credentials = {
     username: params[:username],
@@ -164,11 +168,21 @@ post "/users/signin" do
   }
 
   if valid_signin?(credentials)
-    session[:logged_in] = true
+    session[:user] = params[:username]
     session[:success] = "Welcome!"
+
+    redirect "/"
   else
     @entered_username = params[:username]
     session[:error] = "Invalid credentials"
     erb :signin
   end
+end
+
+# Sign user out
+post "/users/signout" do
+  session[:user] = nil
+  session[:success] = "You have been signed out."
+
+  redirect "/"
 end
