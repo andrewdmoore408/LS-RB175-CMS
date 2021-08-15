@@ -13,7 +13,7 @@ body {
   background-color: #FFFF99;
 }
 
-li > form {
+form.inline {
   display: inline;
 }
 
@@ -24,4 +24,14 @@ li {
 button {
   padding: 3px;
   margin: 5px;
+}
+
+button a {
+  text-decoration-line: none;
+  color: black;
+}
+
+.sign-in-notice {
+  margin-top: 5em;
+  font-style: italic;
 }
