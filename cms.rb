@@ -77,6 +77,14 @@ def valid_filename?(name)
   name.length.positive?
 end
 
+# Return true if username/password combo is valid, else false
+def valid_signin?(credentials)
+  valid_username = "admin"
+  valid_password = "secret"
+
+  credentials[:username] == valid_username && credentials[:password] == valid_password
+end
+
 # Home page
 get "/" do
   pattern = File.join(data_path, "*")
@@ -141,4 +149,26 @@ post "/:filename/delete" do
   session[:success] = "#{params[:filename]} was deleted."
 
   redirect "/"
+end
+
+# Show form to sign in
+get "/users/signin" do
+  erb :signin
+end
+
+# Validate sign-in
+post "/users/signin" do
+  credentials = {
+    username: params[:username],
+    password: params[:password]
+  }
+
+  if valid_signin?(credentials)
+    session[:logged_in] = true
+    session[:success] = "Welcome!"
+  else
+    @entered_username = params[:username]
+    session[:error] = "Invalid credentials"
+    erb :signin
+  end
 end
