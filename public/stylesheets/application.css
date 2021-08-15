@@ -13,7 +13,7 @@ body {
   background-color: #FFFF99;
 }
 
-li form {
+li > form {
   display: inline;
 }
 
