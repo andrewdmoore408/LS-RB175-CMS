@@ -25,7 +25,7 @@ class CMSTest < Minitest::Test
   end
 
   def admin_session
-    { "rack.session" => { username: "admin" } }
+    { "rack.session" => { user: "admin" } }
   end
 
   def create_document(name, content = "")
@@ -42,7 +42,7 @@ class CMSTest < Minitest::Test
     create_document "about.md"
     create_document "changes.txt"
 
-    get "/", {}, { "rack.session" => { user: "admin" } }
+    get "/", {}, admin_session
 
     assert_equal 200, last_response.status
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
@@ -115,7 +115,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_create_new_document
-    post "/new", {new_filename: "test.txt"}, { "rack.session" => { user: "admin"} }
+    post "/new", {new_filename: "test.txt"}, admin_session
     assert_equal 302, last_response.status
     assert_equal "test.txt has been created.", session[:success]
 
@@ -182,7 +182,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_signing_out
-    get "/", {}, { "rack.session" => { user: "admin"} }
+    get "/", {}, admin_session
 
     assert last_response.ok?
     assert_includes last_response.body, "Signed in as admin"
