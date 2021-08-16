@@ -59,6 +59,19 @@ def load_file_content(filename)
   end
 end
 
+# Return a boolean: whether or not the user is currently logged in
+def logged_in?
+  !!session[:user]
+end
+
+# Check whether the user is currently logged in; if not, set a flash message notifying that login is required and redirect to the homepage
+def redirect_home_if_not_logged_in
+  unless logged_in?
+    session[:error] = "You must be signed in to do that."
+    redirect "/"
+  end
+end
+
 def render_markdown(file)
   markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML)
   markdown.render(file)
@@ -102,11 +115,15 @@ end
 
 # Show form to add a new file
 get "/new" do
+  redirect_home_if_not_logged_in
+
   erb :new_document
 end
 
 # Add a new file
 post "/new" do
+  redirect_home_if_not_logged_in
+
   new_filename = params[:new_filename]
 
   if valid_filename?(new_filename)
@@ -131,6 +148,8 @@ end
 
 # Load a textarea to edit a file
 get "/:filename/edit" do
+  redirect_home_if_not_logged_in
+
   validate_file(params[:filename])
 
   @filepath = file_path(params[:filename])
@@ -139,7 +158,7 @@ end
 
 # Submit edits to file
 post "/:filename" do
-  params[:file_content]
+  redirect_home_if_not_logged_in
 
   File.write(file_path(params[:filename]), params[:file_content])
 
@@ -149,6 +168,8 @@ end
 
 # Delete a file
 post "/:filename/delete" do
+  redirect_home_if_not_logged_in
+
   File.delete(file_path(params[:filename]))
   session[:success] = "#{params[:filename]} was deleted."
 
