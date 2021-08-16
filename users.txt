@@ -1,0 +1,3 @@
+admin: secret
+kermit: ribbit
+piggy: who, moi?

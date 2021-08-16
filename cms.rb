@@ -92,10 +92,18 @@ end
 
 # Return true if username/password combo is valid, else false
 def valid_signin?(credentials)
-  valid_username = "admin"
-  valid_password = "secret"
+  account_data = File.readlines(ROOT + "/users.txt")
 
-  credentials[:username] == valid_username && credentials[:password] == valid_password
+  valid_credentials = account_data.map do |account|
+    name, password = account.strip.split(": ")
+    [name, password]
+  end.to_h
+
+  valid_credentials.each do |(name, password)|
+    return true if credentials[:username] == name && credentials[:password] == password
+  end
+
+  false
 end
 
 # Home page
