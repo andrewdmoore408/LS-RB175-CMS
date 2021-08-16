@@ -3,6 +3,8 @@ require 'sinatra/reloader'
 require 'tilt/erubis'
 require 'redcarpet'
 
+require 'bcrypt'
+
 ROOT = File.expand_path("..", __FILE__)
 DATA_DIR = "/public/data"
 
