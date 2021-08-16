@@ -24,6 +24,10 @@ class CMSTest < Minitest::Test
     FileUtils.rm_rf(data_path)
   end
 
+  def admin_session
+    { "rack.session" => { username: "admin" } }
+  end
+
   def create_document(name, content = "")
     File.open(File.join(data_path, name), "w") do |file|
       file.write(content)
