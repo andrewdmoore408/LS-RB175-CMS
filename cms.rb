@@ -111,7 +111,7 @@ post "/new" do
 
   if valid_filename?(new_filename)
     file = File.open(file_path(new_filename), "w+")
-    session[:success] = "#{new_filename} has been created"
+    session[:success] = "#{new_filename} has been created."
     redirect "/"
   else
     session[:error] = "A name is required."

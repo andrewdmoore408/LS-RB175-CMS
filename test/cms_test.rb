@@ -64,13 +64,13 @@ class CMSTest < Minitest::Test
 
     get "/#{nonexistent}"
     assert_equal 302, last_response.status
+    assert_equal "#{nonexistent} does not exist.", session[:error]
 
     get last_response["location"]
     assert_equal 200, last_response.status
-    assert_includes last_response.body, "#{nonexistent} does not exist."
 
     get "/"
-    refute_includes last_response.body, "#{nonexistent} does not exist."
+    assert_nil session[:error]
   end
 
   def test_markdown_to_html
@@ -92,13 +92,10 @@ class CMSTest < Minitest::Test
   end
 
   def test_updating_document
-    post "/changes.txt", file_content: "new content"
+    post "/changes.txt", { file_content: "new content" }
 
     assert_equal 302, last_response.status
-
-    get last_response["Location"]
-
-    assert_includes last_response.body, "changes.txt has been updated"
+    assert_equal "changes.txt has been updated.", session[:success]
 
     get "/changes.txt"
     assert_equal 200, last_response.status
@@ -116,29 +113,31 @@ class CMSTest < Minitest::Test
   def test_create_new_document
     post "/new", {new_filename: "test.txt"}, { "rack.session" => { user: "admin"} }
     assert_equal 302, last_response.status
+    assert_equal "test.txt has been created.", session[:success]
 
     get last_response["Location"]
-    assert_includes last_response.body, "test.txt has been created"
 
     get "/"
     assert_includes last_response.body, "test.txt"
   end
 
   def test_create_new_document_without_filename
-    post "/new", new_filename: ""
+    post "/new", { new_filename: "" }
+
     assert_equal 422, last_response.status
+
     assert_includes last_response.body, "A name is required"
   end
 
   def test_delete_document
     create_document "toDelete.txt"
 
-    post "/toDelete.txt/delete", filename: "toDelete.txt"
+    post "/toDelete.txt/delete"
 
     assert_equal 302, last_response.status
+    assert_equal "toDelete.txt was deleted.", session[:success]
 
     get last_response["Location"]
-    assert_includes last_response.body, "toDelete.txt was deleted."
 
     get "/"
     refute_includes last_response.body, "toDelete.txt"
@@ -162,6 +161,7 @@ class CMSTest < Minitest::Test
     post "/users/signin", { username: "admin", password: "secret" }
 
     assert_equal 302, last_response.status
+    assert_equal "Welcome!", session[:success]
 
     get last_response["Location"]
     assert last_response.ok?
@@ -173,6 +173,7 @@ class CMSTest < Minitest::Test
   def test_signin_invalid
     post "/users/signin", { username: "guest", password: "shhhh" }
     assert_equal 422, last_response.status
+    assert_nil session[:user]
     assert_includes last_response.body, "Invalid credentials"
   end
 
@@ -185,6 +186,7 @@ class CMSTest < Minitest::Test
     post "/users/signout"
 
     assert_equal 302, last_response.status
+    assert_equal "You have been signed out.", session[:success]
 
     get last_response["Location"]
 
