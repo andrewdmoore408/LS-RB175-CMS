@@ -102,7 +102,7 @@ def valid_signin?(credentials)
   end.to_h
 
   valid_credentials.each do |(name, password)|
-    return true if credentials[:username] == name && credentials[:password] == password
+    return true if credentials[:username] == name && BCrypt::Password.new(password) == credentials[:password]
   end
 
   false
